@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/boltdb/bolt"
 )
 
 var (
@@ -24,12 +22,6 @@ func parseFlags() {
 func main() {
 
 	parseFlags()
-
-	db, err := bolt.Open(*db_location, 0600, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
 
 	getHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Get database\n")
