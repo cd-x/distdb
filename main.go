@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/cd-x/distdb/db"
+	"github.com/cd-x/distdb/web"
 )
 
 var (
@@ -31,23 +31,11 @@ func main() {
 		log.Fatalf("NewDatabase[%q]: %v", *db_location, err)
 	}
 	defer close()
-	getHandler := func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		key := r.Form.Get("key")
-		value, err := db.GetKey(key)
-		fmt.Fprintf(w, "Value=%q, error = %v", value, err)
-	}
 
-	setHandler := func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		key := r.Form.Get("key")
-		value := r.Form.Get("value")
-		err := db.SetKey(key, []byte(value))
-		fmt.Fprintf(w, "Error = %v", err)
-	}
+	srv := web.NewServer(db)
 
-	http.HandleFunc("/get", getHandler)
-	http.HandleFunc("/set", setHandler)
+	http.HandleFunc("/get", srv.GetHandler)
+	http.HandleFunc("/set", srv.SetHandler)
 
 	log.Fatal(http.ListenAndServe(*http_location, nil))
 }
