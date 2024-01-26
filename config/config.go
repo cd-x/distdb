@@ -1,10 +1,14 @@
 package config
 
 type Shard struct {
-	Name string
-	Id   uint64
+	Name string `toml:"name"`
+	Id   int    `toml:"id"`
 }
 
 type Config struct {
-	Shards []Shard
+	Shards []Shard `toml:"shard"`
+}
+
+type Fuck struct {
+	Wtf string
 }

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"slices"
 
 	"github.com/BurntSushi/toml"
@@ -30,16 +31,19 @@ func main() {
 
 	parseFlags()
 
-	var c config.Config
-
-	if _, err := toml.DecodeFile(*configFile, &c); err != nil {
-		log.Fatalf("toml.DecodeFile(%q): %v", *configFile, err)
+	content, err := os.ReadFile(*configFile)
+	if err != nil {
+		log.Fatalf("os.ReadFile(%q): %v", *configFile, err)
+	}
+	var data config.Config
+	if err := toml.Unmarshal([]byte(content), &data); err != nil {
+		log.Fatalf("toml.Unmarshal(%q):%v", *configFile, err)
 	}
 	// find shard index
-	idx := slices.IndexFunc(c.Shards, func(s config.Shard) bool { return s.Name == *shardName })
-	shardCount := len(c.Shards)
+	idx := slices.IndexFunc(data.Shards, func(s config.Shard) bool { return s.Name == *shardName })
+	shardCount := len(data.Shards)
 	if idx == -1 || shardCount < 1 {
-		log.Fatalf("shard %v not foung", *shardName)
+		log.Fatalf("shard %v not found", *shardName)
 	}
 
 	db, close, err := db.NewDatabase(*db_location)
