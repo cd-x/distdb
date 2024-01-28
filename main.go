@@ -25,6 +25,9 @@ func parseFlags() {
 	if *db_location == "" {
 		log.Fatalf("missing db_location")
 	}
+	if *configFile == "" {
+		log.Fatalf("Required config.toml file not provided.")
+	}
 }
 
 func main() {
@@ -39,6 +42,8 @@ func main() {
 	if err := toml.Unmarshal([]byte(content), &data); err != nil {
 		log.Fatalf("toml.Unmarshal(%q):%v", *configFile, err)
 	}
+	log.Printf("ConfigFile(%q): %v\n", *configFile, data.Shards)
+
 	// find shard index
 	idx := slices.IndexFunc(data.Shards, func(s config.Shard) bool { return s.Name == *shardName })
 	shardCount := len(data.Shards)

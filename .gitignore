@@ -37,3 +37,4 @@ bin
 TODO.md
 *.db
 *.toml
+*.sh

@@ -8,7 +8,3 @@ type Shard struct {
 type Config struct {
 	Shards []Shard `toml:"shard"`
 }
-
-type Fuck struct {
-	Wtf string
-}
