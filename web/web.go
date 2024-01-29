@@ -34,7 +34,7 @@ func (server *Server) GetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	value, err := server.db.GetKey(key)
-	fmt.Fprintf(w, "Value=%q, error = %v", value, err)
+	fmt.Fprintf(w, "Value=%q, error = %v\n", value, err)
 }
 
 func (server *Server) SetHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +48,7 @@ func (server *Server) SetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := server.db.SetKey(key, []byte(value))
-	fmt.Fprintf(w, "Error = %v, shardIdx = %d ", err, shardIdx)
+	fmt.Fprintf(w, "Error = %v, shardIdx = %d \n", err, shardIdx)
 }
 
 func (server *Server) getShardIndex(key string) int {
@@ -59,11 +59,11 @@ func (server *Server) getShardIndex(key string) int {
 
 func (server *Server) route(w http.ResponseWriter, r *http.Request, shardIdx int) {
 	routedAddress := "http://" + server.shardMap[shardIdx] + r.RequestURI
-	fmt.Fprintf(w, "redirecting to shard = %d from shard = %d, address = (%q)", shardIdx, server.shardIdx, routedAddress)
+	fmt.Fprintf(w, "redirecting to shard = %d from shard = %d, address = (%q)\n", shardIdx, server.shardIdx, routedAddress)
 	resp, err := http.Get(routedAddress)
 	if err != nil {
 		w.WriteHeader(500)
-		fmt.Fprintf(w, "Error occured redirecting the request: %v", err)
+		fmt.Fprintf(w, "Error occured redirecting the request: %v\n", err)
 		return
 	}
 	io.Copy(w, resp.Body)
