@@ -15,7 +15,7 @@ import (
 
 var (
 	db_location   = flag.String("db_location", "", "Database location")
-	http_location = flag.String("http_address", "localhost:8080", "Address to connect to database")
+	http_location = flag.String("http-address", "localhost:8080", "Address to connect to database")
 	configFile    = flag.String("config-file", "", "Static sharding config file")
 	shardName     = flag.String("shard", "", "name of the shard")
 )
@@ -33,19 +33,16 @@ func parseFlags() {
 func main() {
 
 	parseFlags()
-
-	content, err := os.ReadFile(*configFile)
-	if err != nil {
-		log.Fatalf("os.ReadFile(%q): %v", *configFile, err)
-	}
+	// Unmarshall shard configs
 	var data config.Config
-	if err := toml.Unmarshal([]byte(content), &data); err != nil {
-		log.Fatalf("toml.Unmarshal(%q):%v", *configFile, err)
-	}
-	log.Printf("ConfigFile(%q): %v\n", *configFile, data.Shards)
+	getConfigs(&data)
 
 	// find shard index
 	idx := slices.IndexFunc(data.Shards, func(s config.Shard) bool { return s.Name == *shardName })
+	shardMap := make(map[int]string)
+	for _, shard := range data.Shards {
+		shardMap[shard.Id] = shard.Address
+	}
 	shardCount := len(data.Shards)
 	if idx == -1 || shardCount < 1 {
 		log.Fatalf("shard %v not found", *shardName)
@@ -58,10 +55,21 @@ func main() {
 	}
 	defer close()
 
-	srv := web.NewServer(db)
+	srv := web.NewServer(db, idx, shardCount, shardMap)
 
 	http.HandleFunc("/get", srv.GetHandler)
 	http.HandleFunc("/set", srv.SetHandler)
 
 	log.Fatal(http.ListenAndServe(*http_location, nil))
+}
+
+func getConfigs(data *config.Config) {
+	content, err := os.ReadFile(*configFile)
+	if err != nil {
+		log.Fatalf("os.ReadFile(%q): %v", *configFile, err)
+	}
+	if err := toml.Unmarshal([]byte(content), &data); err != nil {
+		log.Fatalf("toml.Unmarshal(%q):%v", *configFile, err)
+	}
+	log.Printf("ConfigFile(%q): %v\n", *configFile, data.Shards)
 }
