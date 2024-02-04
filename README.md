@@ -1,8 +1,7 @@
 ### Distributed key value pair database
-----
+----                                                                                                   
 
-                                                                                                            
-                                                                                                            
+```                                                                                                        
 DDDDDDDDDDDDD          iiii                            tttt          DDDDDDDDDDDDD      BBBBBBBBBBBBBBBBB   
 D::::::::::::DDD      i::::i                        ttt:::t          D::::::::::::DDD   B::::::::::::::::B  
 D:::::::::::::::DD     iiii                         t:::::t          D:::::::::::::::DD B::::::BBBBBB:::::B 
@@ -20,8 +19,7 @@ D:::::::::::::::DD   i::::::is::::::::::::::s       tt::::::::::::::tD::::::::::
 D::::::::::::DDD     i::::::i s:::::::::::ss          tt:::::::::::ttD::::::::::::DDD   B::::::::::::::::B  
 DDDDDDDDDDDDD        iiiiiiii  sssssssssss              ttttttttttt  DDDDDDDDDDDDD      BBBBBBBBBBBBBBBBB   
                                                                                                             
-                                                                                                            
-                                                                                                            
+```                                                                                                     
                                                                                                             
                                                                                                             
                                                                                                             
