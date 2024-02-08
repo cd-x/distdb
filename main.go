@@ -4,10 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
-	"slices"
 
-	"github.com/BurntSushi/toml"
 	"github.com/cd-x/distdb/config"
 	"github.com/cd-x/distdb/db"
 	"github.com/cd-x/distdb/web"
@@ -35,18 +32,8 @@ func main() {
 	parseFlags()
 	// Unmarshall shard configs
 	var data config.Config
-	getConfigs(&data)
-
-	// find shard index
-	idx := slices.IndexFunc(data.Shards, func(s config.Shard) bool { return s.Name == *shardName })
-	shardMap := make(map[int]string)
-	for _, shard := range data.Shards {
-		shardMap[shard.Id] = shard.Address
-	}
-	shardCount := len(data.Shards)
-	if idx == -1 || shardCount < 1 {
-		log.Fatalf("shard %v not found", *shardName)
-	}
+	config.GetConfigs(&data, *configFile)
+	idx, shardCount, shardMap := config.ParseShards(&data, *shardName)
 
 	db, close, err := db.NewDatabase(*db_location)
 
@@ -61,15 +48,4 @@ func main() {
 	http.HandleFunc("/set", srv.SetHandler)
 
 	log.Fatal(http.ListenAndServe(*http_location, nil))
-}
-
-func getConfigs(data *config.Config) {
-	content, err := os.ReadFile(*configFile)
-	if err != nil {
-		log.Fatalf("os.ReadFile(%q): %v", *configFile, err)
-	}
-	if err := toml.Unmarshal([]byte(content), &data); err != nil {
-		log.Fatalf("toml.Unmarshal(%q):%v", *configFile, err)
-	}
-	log.Printf("ConfigFile(%q): %v\n", *configFile, data.Shards)
 }
